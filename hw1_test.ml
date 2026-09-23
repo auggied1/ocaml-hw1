@@ -12,12 +12,16 @@ let check name result =
 (* 1. is_older *)
 
 let () =
-  check "is_older before"
+  check "is_older earlier date"
   (is_older ((1,1,2020),(1,1,2021)))
 
 let () =
   check "is_older same date"
   (not (is_older ((1,1,2020),(1,1,2020))))
+
+let () =
+  check "is_older different months"
+  (is_older ((10,2,2020),(10,3,2020)))
 
 
 (* 2. number_in_month *)
@@ -29,15 +33,23 @@ let dates =
    (20,3,2020)]
 
 let () =
-  check "number_in_month"
+  check "number_in_month two matches"
   (number_in_month (dates,2) = 2)
+
+let () =
+  check "number_in_month no matches"
+  (number_in_month (dates,12) = 0)
 
 
 (* 3. number_in_months *)
 
 let () =
-  check "number_in_months"
+  check "number_in_months multiple months"
   (number_in_months (dates,[1;2]) = 3)
+
+let () =
+  check "number_in_months empty list"
+  (number_in_months (dates,[]) = 0)
 
 
 (* 4. dates_in_month *)
@@ -61,25 +73,34 @@ let () =
 (* 6. get_nth *)
 
 let () =
-  check "get_nth"
-  (get_nth (["a";"b";"c"],2) = "b")
+  check "get_nth first"
+  (get_nth (["a";"b";"c"],1) = "a")
+
+let () =
+  check "get_nth last"
+  (get_nth (["a";"b";"c"],3) = "c")
 
 
 (* 7. string_of_date *)
 
 let () =
-  check "string_of_date"
+  check "string_of_date September"
   (string_of_date (10,9,2015)
    =
    "September-10-2015")
+
+let () =
+  check "string_of_date January"
+  (string_of_date (1,1,2021)
+   =
+   "January-1-2021")
 
 
 (* 8. number_before_reaching_sum *)
 
 let () =
   check "number_before_reaching_sum"
-  (number_before_reaching_sum
-     (10,[3;4;5]) = 2)
+  (number_before_reaching_sum (10,[3;4;5]) = 2)
 
 
 (* 9. what_month *)
@@ -101,6 +122,10 @@ let () =
    =
    [1;2;2;2])
 
+let () =
+  check "month_range empty"
+  (month_range (5,3) = [])
+
 
 (* 11. oldest *)
 
@@ -112,7 +137,6 @@ let () =
       (9,9,2021)]
    =
    Some (1,1,2019))
-
 
 let () =
   check "oldest empty"
@@ -130,4 +154,3 @@ let () =
 let () =
   check "cumulative_sum empty"
   (cumulative_sum [] = [])
-
