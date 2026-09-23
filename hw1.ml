@@ -1,38 +1,45 @@
-(* hw1.ml
-   Calendar date functions
-   Date format: (day, month, year)
-*)
+(* CS 314, Homework 1 *)
 
-let fst3 (x, y, z) = x
-let snd3 (x, y, z) = y
-let thd3 (x, y, z) = z
+(* Use these functions to extract parts of a date *)
+let fst3 (x,_,_) = x
+let snd3 (_,x,_) = x
+let thd3 (_,_,x) = x
 
 
 (* 1. is_older *)
 
-let is_older ((d1, m1, y1), (d2, m2, y2)) =
-  if y1 < y2 then true
-  else if y1 > y2 then false
-  else if m1 < m2 then true
-  else if m1 > m2 then false
-  else d1 < d2
+let is_older ((date1 : int * int * int), (date2 : int * int * int)) =
+  if thd3 date1 < thd3 date2 then
+    true
+  else if thd3 date1 > thd3 date2 then
+    false
+  else if snd3 date1 < snd3 date2 then
+    true
+  else if snd3 date1 > snd3 date2 then
+    false
+  else
+    fst3 date1 < fst3 date2
 
 
 (* 2. number_in_month *)
 
-let rec number_in_month (dates, month) =
-  if dates = [] then 0
+let rec number_in_month ((dates : (int * int * int) list), (month : int)) =
+  if dates = [] then
+    0
   else
-    if snd3 (List.hd dates) = month then
-      1 + number_in_month (List.tl dates, month)
+    let first = List.hd dates in
+    let rest = List.tl dates in
+    if snd3 first = month then
+      1 + number_in_month (rest, month)
     else
-      number_in_month (List.tl dates, month)
+      number_in_month (rest, month)
 
 
 (* 3. number_in_months *)
 
-let rec number_in_months (dates, months) =
-  if months = [] then 0
+let rec number_in_months ((dates : (int * int * int) list), (months : int list)) =
+  if months = [] then
+    0
   else
     number_in_month (dates, List.hd months)
     + number_in_months (dates, List.tl months)
@@ -40,19 +47,23 @@ let rec number_in_months (dates, months) =
 
 (* 4. dates_in_month *)
 
-let rec dates_in_month (dates, month) =
-  if dates = [] then []
+let rec dates_in_month ((dates : (int * int * int) list), (month : int)) =
+  if dates = [] then
+    []
   else
-    if snd3 (List.hd dates) = month then
-      List.hd dates :: dates_in_month (List.tl dates, month)
+    let first = List.hd dates in
+    let rest = List.tl dates in
+    if snd3 first = month then
+      first :: dates_in_month (rest, month)
     else
-      dates_in_month (List.tl dates, month)
+      dates_in_month (rest, month)
 
 
 (* 5. dates_in_months *)
 
-let rec dates_in_months (dates, months) =
-  if months = [] then []
+let rec dates_in_months ((dates : (int * int * int) list), (months : int list)) =
+  if months = [] then
+    []
   else
     dates_in_month (dates, List.hd months)
     @ dates_in_months (dates, List.tl months)
@@ -60,7 +71,7 @@ let rec dates_in_months (dates, months) =
 
 (* 6. get_nth *)
 
-let rec get_nth (strings, n) =
+let rec get_nth ((strings : string list), (n : int)) =
   if n = 1 then
     List.hd strings
   else
@@ -69,7 +80,7 @@ let rec get_nth (strings, n) =
 
 (* 7. string_of_date *)
 
-let string_of_date date =
+let string_of_date (date : int * int * int) =
   let months =
     ["January"; "February"; "March"; "April";
      "May"; "June"; "July"; "August";
@@ -82,7 +93,7 @@ let string_of_date date =
 
 (* 8. number_before_reaching_sum *)
 
-let rec number_before_reaching_sum (sum, numbers) =
+let rec number_before_reaching_sum ((sum : int), (numbers : int list)) =
   if List.hd numbers >= sum then
     0
   else
@@ -93,22 +104,23 @@ let rec number_before_reaching_sum (sum, numbers) =
 (* 9. what_month *)
 
 let what_month day =
-  let month_days =
+  let days_in_month =
     [31;28;31;30;31;30;
      31;31;30;31;30;31]
   in
-  let rec helper (day_left, months) =
-    if day_left <= List.hd months then
+  let rec helper (days_left, months_left) =
+    if days_left <= List.hd months_left then
       1
     else
-      1 + helper (day_left - List.hd months, List.tl months)
+      1 + helper
+        (days_left - List.hd months_left, List.tl months_left)
   in
-  helper (day, month_days)
+  helper (day, days_in_month)
 
 
 (* 10. month_range *)
 
-let rec month_range (day1, day2) =
+let rec month_range ((day1 : int), (day2 : int)) =
   if day1 > day2 then
     []
   else
@@ -117,16 +129,17 @@ let rec month_range (day1, day2) =
 
 (* 11. oldest *)
 
-let rec oldest dates =
+let rec oldest (dates : (int * int * int) list) =
   if dates = [] then
     None
   else
+    let first = List.hd dates in
     let rest = oldest (List.tl dates) in
     if rest = None then
-      Some (List.hd dates)
+      Some first
     else
-      if is_older (List.hd dates, Option.get rest) then
-        Some (List.hd dates)
+      if is_older (first, Option.get rest) then
+        Some first
       else
         rest
 
@@ -134,14 +147,12 @@ let rec oldest dates =
 (* 12. cumulative_sum *)
 
 let cumulative_sum numbers =
-  let rec helper (numbers, total) =
-    if numbers = [] then
+  let rec helper (nums, total) =
+    if nums = [] then
       []
     else
-      let new_total = total + List.hd numbers
-      in
-      new_total :: helper (List.tl numbers, new_total)
+      let new_total = total + List.hd nums in
+      new_total :: helper (List.tl nums, new_total)
   in
   helper (numbers, 0)
-
   
